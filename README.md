@@ -403,7 +403,7 @@ df=pd.DataFrame(columns=['emails'])
 
 Now that we have a column, we can add the data to the DataFrame in the form of a list:
 ```python
-df=pd.DataFrame(columns=['emails'])
+df=pd['Emails']=[email])
 ```
 <table border="1">
 <tr>
