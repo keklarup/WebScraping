@@ -12,3 +12,14 @@ But if there are many pages, that's just not practicle. Either you need a lot of
 The keys to web scraping are patterns. The webpages you want the program to visit can't be random, there needs to be some pattern the program can follow to go from one to the next. The desired data on each webpage must be in some recognizable pattern, so the web scraper can reliably collect it. Finding these patterns is the tricky, time consuming process that is at the very beginning. But after they're discovered, writing the code of the web scraper is easy.
 
 # Outline
+
+
+## Python Packages
+
+1) urlopen from urllib.request : to download page contents from a given valid url
+
+2) BeautifulSoup from bs4 : to navigate the HTML of the downloaded page
+
+3) pandas : to store our scraped data
+
+For those knew to python, packages and modules are ready made bits of code to make your project go faster. Sure, you could write a script to interact the HTML of a webpage, but someone has already done that. Don't reinvent the wheel. Give thanks and move on.
