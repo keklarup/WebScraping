@@ -12,7 +12,7 @@ But if there are many pages, that's just not practicle. Either you need a lot of
 The keys to web scraping are patterns. The webpages you want the program to visit can't be random, there needs to be some pattern the program can follow to go from one to the next. The desired data on each webpage must be in some recognizable pattern, so the web scraper can reliably collect it. Finding these patterns is the tricky, time consuming process that is at the very beginning. But after they're discovered, writing the code of the web scraper is easy.
 
 ## Simple Web Scraping Outline
-
+```text
 for x in range(0,however many pages you're looking at):
   
   1. download HTMl from url="https://www.desired-web-site.com/page=%s" % (x)
@@ -20,6 +20,7 @@ for x in range(0,however many pages you're looking at):
   2. locate in HTML the section with desired information
   
   3. record information in dataframe saved locally to computer
+```
 
 Each of these steps would take many, many lines of code. Thankfully, there are python packages that other, brilliant people have created. All I have to do is download those packages (Anaconda has many of them already. If not, Pip or Pip3 are good ways to acquire packages), and use them. For this web scraper we'll make use of three.
 
