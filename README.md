@@ -389,6 +389,8 @@ You can then initialize an empty DataFrame:
 ```python
 df=pd.DataFrame()
 ```
+(Note: Do this outside of any for loops you have going on!)
+
 If you already know the names of the columns you'll want, you can assign that now:
 ```python
 df=pd.DataFrame(columns=['emails'])
