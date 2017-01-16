@@ -34,9 +34,11 @@ Each of these steps would take many, many lines of code. Thankfully, there are p
 ## Test Page
 For the purposes of this little tutorial, I'll show how to scrape just a single page. One with very simple html to make it easier to understand what's going on: <a href="http://help.websiteos.com/websiteos/example_of_a_simple_html_page.htm">This page</a>
 
-<img src="./WS_images/CopyPaste1.png" height="400px" />
+<img src="./WS_images/simpleHTMLpageSS.png" />
 
-Before I writing the web scraper in Python, let me decide what I actually want to scrape. This page has minimal information, but as an example,  let's say I want the email address.  
+Before I writing the web scraper in Python, let me decide what I actually want to scrape. This page has minimal information, but as an example,  let's say I want the email address:
+
+<img src="./WS_images/simpleHTMLpageSS2.png" />
 
 # 1 paragraph on urlopen from urllib.request
 
@@ -198,7 +200,7 @@ The above html is for a very simple webpage. Most pages you'll want to mine are 
 
 In Firefox, right click on the information you care about and select 'inspect element.' The browser will let you look under the hood at the html of the page and take you right to the section you care about.
 
-<img src="./WS_images/CopyPaste1.png" height="350px" /> 
+<img src="./WS_images/simpleHTMLpageSS3.png" /> 
 
 Here I can note all the html tags I can use to locate the email address with BeautifulSoup:
 
