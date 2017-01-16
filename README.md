@@ -9,9 +9,12 @@ If there's information on a webpage, you can gather it. If you only want informa
 But if there are many pages, that's just not practicle. Either you need a lot of people to help you, or you need to have your computer do it for you. This webscraper will be written in a Jupyter Python notebook, and in essense does exactly what a human would do: open a webpage, copy the desired information, save it in a table, and repeat for many, many pages.
 
 ## Keys to Web Scraping:
-The keys to web scraping are patterns. The webpages you want the program to visit can't be random, there needs to be some pattern the program can follow to go from one to the next. The desired data on each webpage must be in some recognizable pattern, so the web scraper can reliably collect it. Finding these patterns is the tricky, time consuming process that is at the very beginning. But after they're discovered, writing the code of the web scraper is easy.
+<b>The keys to web scraping are patterns. The webpages you want the program to visit can't be random, there needs to be some pattern the program can follow to go from one to the next. The desired data on each webpage must be in some recognizable pattern, so the web scraper can reliably collect it. Finding these patterns is the tricky, time consuming process that is at the very beginning. But after they're discovered, writing the code of the web scraper is easy.</b>
 
 ## Simple Web Scraping Outline
+
+In fake code, this is what this web scraper looks like:
+
 ```text
 for x in range(0,however many pages you're looking at):
   
@@ -41,7 +44,7 @@ Before I writing the web scraper in Python, let me decide what I actually want t
 
 <img src="./WS_images/simpleHTMLpageSS2.png" />
 
-# 1 paragraph on urlopen from urllib.request
+# urlopen from urllib.request
 
 urlopen is a no-frills way of making a web scraper, and the receipe is simple: (1) Give urlopen a valid url. (2) Watch as urlopen downloads the HTML from that url.
 ```python
@@ -54,6 +57,7 @@ If you fed urlopen a valid url, you should print something along the lines of:
 ```python
 <http.client.HTTPResponse object at many-numbers-and-letters>
 ```
+## Downloading many pages
 
 Doing this for just 1 page makes no sense. But often the pages you'll want to scrape have some pattern in their urls. For example, if they are daily records of weather, they might have the date in the url directly:
 
@@ -69,18 +73,17 @@ for x in range(1,32):
 	url="https://www.wunderground.com/history/airport/KEUG/2016/01/%s/DailyHistory.htmlreq_city=Eugene&req_state=OR&req_statename=Oregon&reqdb.zip=97404&reqdb.magic=1&reqdb.wmo=99999" % (x)
 	html=urlopen(url)
 ```
+Another possibility is that you need to interact with the website to get the information (click a javascript button, for example). Requests can't do that. Look into something like Selenium if you need to interact with the page.
 
-# 1 paragraph on BeautifulSoup
-So now you have the html from the page, but no way of reading it. That's were BeautifulSoup will come in. For right now, BeautifulSoup will do 2 major things. (1) It will decode the html into something we can read in the python script. (2) It will let us navigate through the many lines of html by making use of the tags and labels of html coding.
+# 1 BeautifulSoup
+So now you have the html from the page, but no way of reading it. Cue BeautifulSoup. BeautifulSoup will do 2 major things for us. (1) It will decode the html into something we can read in the python script. (2) It will let us navigate through the many lines of html by making use of the tags and labels of html coding.
 
 ```python
 from bs4 import BeautifulSoup
 soup=BeautifulSoup(html.read(),'lxml')
 print(soup)
 ```
-
-See if you can find the email address in all this:
-
+Of course, html is terrible to look through. See if you can find the email address in all this:
 ```html
 <!DOCTYPE doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 
@@ -213,9 +216,10 @@ if (window.writeIntopicBar)
 </html>
 
 ```
-The above html is for a very simple webpage. Most pages you'll want to mine are much more complex and sorting through them can be a chore. It's a tedius step that all writers of web scrapers must suffer through. You can make your life easier by figuring out where the information you want is located within the html of the webpage when it's open in your browser.
+The above html is from a very simple webpage. Most pages you'll want to scrape are much more complex and sorting through them can be a chore. It's a tedius step that all writers of web scrapers must suffer through. You can make your life easier by figuring out where the information you want is located within the html of the webpage when it's open in your browser.
 
-In Firefox, right click on the information you care about and select 'inspect element.' The browser will let you look under the hood at the html of the page and take you right to the section you care about.
+## Inspect element to locate the html tags
+In Firefox, right click on the information you care about and select 'inspect element.' The browser will let you look under the hood at the html of the page and take you right to the section you care about. (Other browsers have a similar feature.)
 
 <img src="./WS_images/simpleHTMLpageSS3.png" /> 
 
@@ -225,10 +229,10 @@ It's in a paragraph ('p'). It has a class ('whs2'). And the address is in a link
 
 That's more than enough for BeautifulSoup.
 
-# Navigating with BeautifulSoup
-The most useful tools of BeautifulSoup, for us, will be find, find_all, and contents. There's much, much more you can do, of course. Much of which is listed <a href="https://www.crummy.com/software/BeautifulSoup/bs4/doc/">here</a>.
+## Navigating with BeautifulSoup
+There are a lot of tools in BeautifulSoup, but we'll make do with three: <b>find</b>, <b>find_all</b>, and <b>contents</b>. There's much, much more you can do, of course. Listed <a href="https://www.crummy.com/software/BeautifulSoup/bs4/doc/">here</a>.
 
-find give the first instance of some html tag:
+<b>find</b> gives the first instance of some html tag:
 ```python
 soup.find('p')
 ```
@@ -238,15 +242,14 @@ soup.find('p')
  tags to define a layout for web pages. Most tags require an opening &lt;tag&gt; 
  and a closing &lt;/tag&gt;.</p>
  ```
- contents gives you any text what find found in the form of a list:
+ <b>contents</b> gives you any text what find found in the form of a list:
  ```python
  soup.find('p').contents
  ```
  ```text
  ['Hypertext Markup Language (HTML) is the most common language used to \n create documents on the World Wide Web. HTML uses hundreds of different \n tags to define a layout for web pages. Most tags require an opening <tag> \n and a closing </tag>.']
  ```
- 
- find_all returns every instance of that tag:
+<b>find_all</b> returns every instance of that tag. Again, in a list:
  ```python
  soup.find_all('p')
  ```
@@ -292,7 +295,7 @@ soup.find('p')
  <p class="whs2"> </p>,
  <p class="whs3"> </p>]
  ```
- If the html object also has a class, you can find by both category and class:
+ If the html object also has a class, you can narrow your results even further:
  ```python
  soup.find_all('p', class_='whs2')
  ```
@@ -327,7 +330,7 @@ soup.find('p')
  <p class="whs2"> </p>,
  <p class="whs2"> </p>]
  ```
-html elements returned by find_all are in a list, so you can iterate through them:
+Finally, because html elements returned by find_all are in a list, you can iterate through them:
 ```python
 subSoup=soup.find_all('p',class_='whs2');
 for elm in subSoup:
@@ -365,11 +368,11 @@ for elm in subSoup:
     if '<a href' in ret and '@' in ret:
         print("The contents of html object with the email address: %s" % (ret))
         email=ret[25+len('mailto')+1:-2]
-        print("a chunky bit of python string processing give us just the email: %s" % (email))
+        print("a chunky bit of python string processing gives us just the email: %s" % (email))
 ```
 ```text
 The contents of html object with the email address: Send me mail at <a href="mailto:support@yourcompany.com">
-a chunky bit of python string processing give us just the email: support@yourcompany.com
+a chunky bit of python string processing gives us just the email: support@yourcompany.com
 ```
 
 # Saving the information in a DataFrame (Pandas)
@@ -402,18 +405,16 @@ df=pd.DataFrame(columns=['emails'])
 ```
 <table border="1">
 <tr>
-<td></td>
-<td>Emails</td>
+<td></td><td>Emails</td>
 </tr>
 <tr>
-<td>0</td>
-<td>support@yourcompany.com</td>
+<td>0</td><td>support@yourcompany.com</td>
 </tr>
 </table>
 
 (This would be more impressive if we had more than 1 email to put into the DataFrame.)
 
-If we had a second email (say: support2@yourcompany.com), we can append it to the DataFrame by stating the row and column it should be added to:
+If we had a second email (say: support2@yourcompany.com), we could append it to the DataFrame by stating the row and column it should be added to:
 ```python
 df.loc[1,'Emails']='support2@yourcompany.com'
 ```
