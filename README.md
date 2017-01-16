@@ -53,6 +53,22 @@ If you fed urlopen a valid url, you should print something along the lines of:
 ```python
 <http.client.HTTPResponse object at many-numbers-and-letters>
 ```
+
+Doing this for just 1 page makes no sense. But often the pages you'll want to scrape have some pattern in their urls. For example, if they are daily records of weather, they might have the date in the url directly:
+
+>https://www.wunderground.com/history/airport/KEUG/2016/01/05/DailyHistory.htmlreq_city=Eugene&req_state=OR&req_statename=Oregon&reqdb.zip=97404&reqdb.magic=1&reqdb.wmo=99999
+
+>https://www.wunderground.com/history/airport/KEUG/2016/01/04/DailyHistory.htmlreq_city=Eugene&req_state=OR&req_statename=Oregon&reqdb.zip=97404&reqdb.magic=1&reqdb.wmo=99999
+
+So, you could visit many of these pages by writing a python script that created knew url strings by changing the date.
+
+Example, downloading the html of every day in Jan, 2016:
+```python
+for x in range(1,32):
+	url="https://www.wunderground.com/history/airport/KEUG/2016/01/%s/DailyHistory.htmlreq_city=Eugene&req_state=OR&req_statename=Oregon&reqdb.zip=97404&reqdb.magic=1&reqdb.wmo=99999" % (x)
+	html=urlopen(url)
+```
+
 # 1 paragraph on BeautifulSoup
 So now you have the html from the page, but no way of reading it. That's were BeautifulSoup will come in. For right now, BeautifulSoup will do 2 major things. (1) It will decode the html into something we can read in the python script. (2) It will let us navigate through the many lines of html by making use of the tags and labels of html coding.
 
@@ -357,3 +373,72 @@ a chunky bit of python string processing give us just the email: support@yourcom
 
 # Saving the information in a DataFrame (Pandas)
 
+If we scraped many more websites and took more data from each page than just a single email address, we'd want to save it all someplace easy to access in the future. (Printing 10,000 items in a Python notebook is a terrible idea.)
+
+There are many ways to do this, but let's focus on creating a DataFrame (think Excel table) using Pandas. Why? Because Pandas is really useful in data science for doing exploritory data analysis, parallel processing, sorting/ cleaning/ and reformating data, etc. It's easier to save the data into a Pandas DataFrame right from the start than to have to transcribe it in later.
+
+First, of course, you'll need to import Pandas:
+```python
+import pandas as pd
+```
+You can then initialize an empty DataFrame:
+```python
+df=pd.DataFrame()
+```
+If you already know the names of the columns you'll want, you can assign that now:
+```python
+df=pd.DataFrame(columns=['emails'])
+```
+<table border="1">
+<tr>
+<td>Emails</td>
+</tr>
+</table>
+
+Now that we have a column, we can add the data to the DataFrame in the form of a list:
+```python
+df=pd.DataFrame(columns=['emails'])
+```
+<table border="1">
+<tr>
+<td></td>
+<td>Emails</td>
+</tr>
+<tr>
+<td>0</td>
+<td>support@yourcompany.com</td>
+</tr>
+</table>
+
+(This would be more impressive if we had more than 1 email to put into the DataFrame.)
+
+If we had a second email (say: support2@yourcompany.com), we can append it to the DataFrame by stating the row and column it should be added to:
+```python
+df.loc[1,'Emails']='support2@yourcompany.com'
+```
+<table border="1">
+<tr>
+<td></td><td>Emails</td>
+</tr>
+<tr>
+<td>0</td><td>support@yourcompany.com</td>
+</tr>
+<tr>
+<td>1</td><td>support2@yourcompany.com</td>
+</tr>
+</table>
+
+In this way, each time our web scraper goes to a new page and scrapes the desired data, we can save it in the next row of the DataFrame.
+
+After the scraping is complete, you can save to csv file with:
+```python
+df.to_csv('Scraped_emails.csv',index=False)
+```
+And later import it directly into a DataFrame with:
+
+```python
+df=pd.read_csv('Scraped_emails.csv')
+```
+
+# Try yourself:
+Want practice at this? Try it yourself. Write a Python script using the modules shown here to scrape and save the mean daily temperature for Eugene OR from Jan 01, 2016 to Jan 31, 2016 from <a href="https://www.wunderground.com/history/airport/KEUG/2016/1/1/DailyHistory.html?req_city=&req_state=&req_statename=&reqdb.zip=&reqdb.magic=&reqdb.wmo=">this site </a>
