@@ -1,52 +1,61 @@
-# WebScraping
-Tutorial and worked example for webscraping in python using urlopen from urllib.request, beautifulsoup, and pandas
+# Web Scraping
+Guided example for web scraping in Python using <b>urlopen</b> from urllib.request, <b>beautifulsoup</b>, and <b>pandas</b>.
 
-# 1 Paragraph on Web Scraping
-If there's information on a webpage, you can gather it. If you only want information from a few pages, you can just copy/paste into an excel file and be on your way. 
-
-<img src="./WS_images/CopyPaste1.png" height="350px" />     <img src="./WS_images/CopyPaste2.png" height="350px"  />
-
-But if there are many pages, that's just not practicle. Either you need a lot of people to help you, or you need to have your computer do it for you. This webscraper will be written in a Jupyter Python notebook, and in essense does exactly what a human would do: open a webpage, copy the desired information, save it in a table, and repeat for many, many pages.
+# One Sentence Definition of Web Scraping
+Web scraping is having your computer visit many web pages, collect (scrape) data from each page, and save it locally to your computer for future use. It’s something you could do with copy/paste and an Excel table, but the sheer number of pages makes it impractical. 
 
 ## Keys to Web Scraping:
-<b>The keys to web scraping are patterns. The webpages you want the program to visit can't be random, there needs to be some pattern the program can follow to go from one to the next. The desired data on each webpage must be in some recognizable pattern, so the web scraper can reliably collect it. Finding these patterns is the tricky, time consuming process that is at the very beginning. But after they're discovered, writing the code of the web scraper is easy.</b>
+<b>The keys to web scraping are patterns. There needs to be some pattern the program can follow to go from one web page to the next. The desired data needs to be in some pattern, so the web scraper can reliably collect it. Finding these patterns is the tricky, time consuming process that is at the very beginning. But after they're discovered, writing the code of the web scraper is easy.</b>
 
-## Simple Web Scraping Outline
+# Simple Web Scraper
 
-In fake code, this is what this web scraper looks like:
+Here is the finished web scraper built in the rest of this document. I’ll go through each step, explaining why and what each element does, but this is the end goal.
 
-```text
-for x in range(0,however many pages you're looking at):
-  
-  1. download HTMl from url="https://www.desired-web-site.com/page=%s" % (x)
-  
-  2. locate in HTML the section with desired information
-  
-  3. record information in dataframe saved locally to computer
+```python
+from urllib.request import urlopen
+from bs4 import BeautifulSoup
+import pandas as pd
+
+df=pd.DataFrame()
+df=pd.DataFrame(columns=['emails']) 
+for x in range(0,10):
+    url='http://help.websiteos.com/websiteos/example_of_a_simple_html_page.htm'
+    html=urlopen(url) 
+    soup=BeautifulSoup(html.read(),'lxml')
+    subSoup=soup.find_all('p',class_='whs2'); 
+    for elm in subSoup:
+        ret=elm.contents[0]
+        if '<a href' in ret and '@' in ret: 
+            email=ret[25+len('mailto')+1:-2]
+    df.loc[x,'emails']='support2@yourcompany%s.com' %(x)
+df.to_csv('Scraped_emails.csv',index=False)
 ```
-
-Each of these steps would take many, many lines of code. Thankfully, there are python packages that other, brilliant people have created. All I have to do is download those packages (Anaconda has many of them already. If not, Pip or Pip3 are good ways to acquire packages), and use them. For this web scraper we'll make use of three.
 
 ## Python Packages
 
-1) urlopen from urllib.request : to download page contents from a given valid url
+Packages (and modules) are clever bits of code other, brilliant people have created to do useful things. By downloading and using them, we don’t have to know how to write code to communicate with servers, parse HTML, or a myriad of other things. Instead, we can get straight to what we want to do: scrape data off of websites. Anaconda has many of these packages already. If not, <a href="https://docs.python.org/2/installing/">pip for Python 2.X</a> or <a href="https://docs.python.org/3.6/installing/"> pip for Python 3.X</a> are good ways to acquire new packages.
 
-2) BeautifulSoup from bs4 : to navigate the HTML of the downloaded page
+This web scraper will make use of three modules:
 
-3) pandas : to store our scraped data
+1) <b>urlopen</b> from urllib.request : to download page contents from a given valid url
 
-## Test Page
-For the purposes of this little tutorial, I'll show how to scrape just a single page. One with very simple html to make it easier to understand what's going on: <a href="http://help.websiteos.com/websiteos/example_of_a_simple_html_page.htm">This page</a>
+2) <b>BeautifulSoup</b> from bs4 : to navigate the HTML of the downloaded page
+
+3) <b>pandas</b> : to store our scraped data
+
+# Target Web Page and Desired Data
+For the purposes of this little tutorial, I'll show how to scrape just a <a href="http://help.websiteos.com/websiteos/example_of_a_simple_html_page.htm">single web page</a>. One with very simple HTML to make it easier to understand what's going on: 
 
 <img src="./WS_images/simpleHTMLpageSS.png" />
 
-Before I writing the web scraper in Python, let me decide what I actually want to scrape. This page has minimal information, but as an example,  let's say I want the email address:
+This page has minimal information, but let's say I want to collect the email address:
 
 <img src="./WS_images/simpleHTMLpageSS2.png" />
 
 # urlopen from urllib.request
 
-urlopen is a no-frills way of making a web scraper, and the receipe is simple: (1) Give urlopen a valid url. (2) Watch as urlopen downloads the HTML from that url.
+urlopen is a no-frills way of making a web scraper, and the recipe is simple: (1) Give urlopen a valid url. (2) Watch as urlopen downloads the HTML from that url.
+
 ```python
 from urllib.request import urlopen
 url='http://help.websiteos.com/websiteos/example_of_a_simple_html_page.htm'
@@ -54,12 +63,14 @@ html=urlopen(url)
 print(html)
 ```
 If you fed urlopen a valid url, you should print something along the lines of: 
+
 ```python
 <http.client.HTTPResponse object at many-numbers-and-letters>
 ```
-## Downloading many pages
 
-Doing this for just 1 page makes no sense. But often the pages you'll want to scrape have some pattern in their urls. For example, if they are daily records of weather, they might have the date in the url directly:
+## Patterns for Downloading many pages
+
+Writing a web scraper for a single page makes no sense. But often the many pages you'll want to scrape have some pattern in their urls. For example, these urls lead to pages with historical daily weather data for Eugene OR. The day in question is explicitly stated in the url:
 
 >https://www.wunderground.com/history/airport/KEUG/2016/01/05/DailyHistory.htmlreq_city=Eugene&req_state=OR&req_statename=Oregon&reqdb.zip=97404&reqdb.magic=1&reqdb.wmo=99999
 
@@ -73,17 +84,21 @@ for x in range(1,32):
 	url="https://www.wunderground.com/history/airport/KEUG/2016/01/%s/DailyHistory.htmlreq_city=Eugene&req_state=OR&req_statename=Oregon&reqdb.zip=97404&reqdb.magic=1&reqdb.wmo=99999" % (x)
 	html=urlopen(url)
 ```
-Another possibility is that you need to interact with the website to get the information (click a javascript button, for example). Requests can't do that. Look into something like Selenium if you need to interact with the page.
 
-# 1 BeautifulSoup
-So now you have the html from the page, but no way of reading it. Cue BeautifulSoup. BeautifulSoup will do 2 major things for us. (1) It will decode the html into something we can read in the python script. (2) It will let us navigate through the many lines of html by making use of the tags and labels of html coding.
+So, you could visit many of these pages by writing a python script that created new url strings by changing the date.
+
+# BeautifulSoup to Navigate the HTML
+
+So now you have the HTML from the page, but no way of reading it. Cue BeautifulSoup. BeautifulSoup will do 2 major things for us. (1) It will decode the HTML into something we can read in the python script. (2) It will let us navigate through the many lines of HTML by making use of the tags and labels of HTML coding.
 
 ```python
 from bs4 import BeautifulSoup
 soup=BeautifulSoup(html.read(),'lxml')
 print(soup)
 ```
-Of course, html is terrible to look through. See if you can find the email address in all this:
+
+This is the tedious bit. See if you can find the email address in the parsed HTML:
+
 ```html
 <!DOCTYPE doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 
@@ -216,43 +231,55 @@ if (window.writeIntopicBar)
 </html>
 
 ```
-The above html is from a very simple webpage. Most pages you'll want to scrape are much more complex and sorting through them can be a chore. It's a tedius step that all writers of web scrapers must suffer through. You can make your life easier by figuring out where the information you want is located within the html of the webpage when it's open in your browser.
+And that HTML is from a very simple webpage. Most pages you'll want to scrape are much more complex and sorting through them can be a chore. It's a tedious step that all writers of web scrapers must suffer through. 
 
-## Inspect element to locate the html tags
-In Firefox, right click on the information you care about and select 'inspect element.' The browser will let you look under the hood at the html of the page and take you right to the section you care about. (Other browsers have a similar feature.)
+You can make your life easier by figuring out where the information you want is located within the html of the webpage when it's open in your browser.
+
+## Inspect Element to Locate the HTML Tags
+
+In Firefox, right click on the information you care about and select 'inspect element' (other browsers have a similar feature). The browser will let you look under the hood at the html of the page and take you right to the section you care about.
 
 <img src="./WS_images/simpleHTMLpageSS3.png" /> 
 
-Here I can note all the html tags I can use to locate the email address with BeautifulSoup:
+Here I can note all the HTML tags I can use to locate the email address with BeautifulSoup:
 
-It's in a paragraph ('p'). It has a class ('whs2'). And the address is in a link (< a > < /a >).
+It's in a paragraph ('p'). It has a class ('whs2'). The address is in a link (< a > < /a >). The email address contains the special character ‘@’.
 
 That's more than enough for BeautifulSoup.
 
-## Navigating with BeautifulSoup
-There are a lot of tools in BeautifulSoup, but we'll make do with three: <b>find</b>, <b>find_all</b>, and <b>contents</b>. There's much, much more you can do, of course. Listed <a href="https://www.crummy.com/software/BeautifulSoup/bs4/doc/">here</a>.
 
-<b>find</b> gives the first instance of some html tag:
+## Navigating with BeautifulSoup
+There are <a href="https://www.crummy.com/software/BeautifulSoup/bs4/doc/">a lot of tools</a> in BeautifulSoup, but we'll make do with three: <b>find</b>, <b>find_all</b>, and <b>contents</b>.
+
+<b>find</b> gives the first instance of some HTML tag:
+
 ```python
 soup.find('p')
 ```
+
 ```html
 <p>Hypertext Markup Language (HTML) is the most common language used to 
  create documents on the World Wide Web. HTML uses hundreds of different 
  tags to define a layout for web pages. Most tags require an opening &lt;tag&gt; 
  and a closing &lt;/tag&gt;.</p>
  ```
- <b>contents</b> gives you any text what find found in the form of a list:
+ 
+ <b>contents</b> gives you any text find found (in the form of a list on length 1):
+ 
  ```python
  soup.find('p').contents
  ```
+ 
  ```text
  ['Hypertext Markup Language (HTML) is the most common language used to \n create documents on the World Wide Web. HTML uses hundreds of different \n tags to define a layout for web pages. Most tags require an opening <tag> \n and a closing </tag>.']
  ```
+ 
 <b>find_all</b> returns every instance of that tag. Again, in a list:
+
  ```python
  soup.find_all('p')
  ```
+ 
  ```html
  [<p>Hypertext Markup Language (HTML) is the most common language used to 
   create documents on the World Wide Web. HTML uses hundreds of different 
@@ -295,10 +322,13 @@ soup.find('p')
  <p class="whs2"> </p>,
  <p class="whs3"> </p>]
  ```
- If the html object also has a class, you can narrow your results even further:
+ 
+ If the HTML object also has a class, you can narrow your results even further:
+ 
  ```python
  soup.find_all('p', class_='whs2')
  ```
+ 
  ```html
  [<p class="whs2">&lt;HTML&gt; </p>,
  <p class="whs2">&lt;HEAD&gt; </p>,
@@ -330,12 +360,15 @@ soup.find('p')
  <p class="whs2"> </p>,
  <p class="whs2"> </p>]
  ```
-Finally, because html elements returned by find_all are in a list, you can iterate through them:
+ 
+Finally, because HTML elements returned by find_all are in a list, you can iterate through them:
+
 ```python
 subSoup=soup.find_all('p',class_='whs2');
 for elm in subSoup:
     print(elm.contents)
 ```
+
 ```text
 ['<HTML> ']
 ['<HEAD> ']
@@ -360,7 +393,8 @@ for elm in subSoup:
 ['\xa0']
 ```
 
-Using this and a bit of python knowledge, we can pull out the email address:
+Using this and a bit chunky python, we can pull out the email address:
+
 ```python
 subSoup=soup.find_all('p',class_='whs2');
 for elm in subSoup:
@@ -370,41 +404,50 @@ for elm in subSoup:
         email=ret[25+len('mailto')+1:-2]
         print("a chunky bit of python string processing gives us just the email: %s" % (email))
 ```
+
 ```text
 The contents of html object with the email address: Send me mail at <a href="mailto:support@yourcompany.com">
 a chunky bit of python string processing gives us just the email: support@yourcompany.com
 ```
 
-# Saving the information in a DataFrame (Pandas)
+# Pandas to Save the Data in a Table
 
-If we scraped many more websites and took more data from each page than just a single email address, we'd want to save it all someplace easy to access in the future. (Printing 10,000 items in a Python notebook is a terrible idea.)
+If we scraped many more websites and took more data from each page, we'd want some easy way to access it in the future. (Printing 10,000 items in a Python notebook is a terrible idea.)
 
-There are many ways to do this, but let's focus on creating a DataFrame (think Excel table) using Pandas. Why? Because Pandas is really useful in data science for doing exploritory data analysis, parallel processing, sorting/ cleaning/ and reformating data, etc. It's easier to save the data into a Pandas DataFrame right from the start than to have to transcribe it in later.
+There are many ways to do this, but let's focus on creating a DataFrame (think Excel table) using pandas. Why? Because pandas is really useful in data science for doing exploratory data analysis, parallel processing, sorting/cleaning/reformatting data, etc. It's easier to save the data into a pandas DataFrame right from the start than to have to transcribe it in later.
 
-First, of course, you'll need to import Pandas:
+First import Pandas:
+
 ```python
 import pandas as pd
 ```
-You can then initialize an empty DataFrame:
+
+And initialize an empty DataFrame:
+
 ```python
 df=pd.DataFrame()
 ```
-(Note: Do this outside of any for loops you have going on!)
 
-If you already know the names of the columns you'll want, you can assign that now:
+(Note: Do this outside of any for-loops you have going on!)
+
+If you already know the names of the columns you want, you can assign that now:
+
 ```python
 df=pd.DataFrame(columns=['emails'])
 ```
+
 <table border="1">
 <tr>
 <td>Emails</td>
 </tr>
 </table>
 
-Now that we have a column, we can add the data to the DataFrame in the form of a list:
+And add the data to the DataFrame, in the form of a list:
+
 ```python
 df=pd['Emails']=[email])
 ```
+
 <table border="1">
 <tr>
 <td></td><td>Emails</td>
@@ -417,9 +460,11 @@ df=pd['Emails']=[email])
 (This would be more impressive if we had more than 1 email to put into the DataFrame.)
 
 If we had a second email (say: support2@yourcompany.com), we could append it to the DataFrame by stating the row and column it should be added to:
+
 ```python
 df.loc[1,'Emails']='support2@yourcompany.com'
 ```
+
 <table border="1">
 <tr>
 <td></td><td>Emails</td>
@@ -435,14 +480,22 @@ df.loc[1,'Emails']='support2@yourcompany.com'
 In this way, each time our web scraper goes to a new page and scrapes the desired data, we can save it in the next row of the DataFrame.
 
 After the scraping is complete, you can save to csv file with:
+
 ```python
 df.to_csv('Scraped_emails.csv',index=False)
 ```
+
 And later import it directly into a DataFrame with:
 
 ```python
 df=pd.read_csv('Scraped_emails.csv')
 ```
 
-# Try yourself:
-Want practice at this? Try it yourself. Write a Python script using the modules shown here to scrape and save the mean daily temperature for Eugene OR from Jan 01, 2016 to Jan 31, 2016 from <a href="https://www.wunderground.com/history/airport/KEUG/2016/1/1/DailyHistory.html?req_city=&req_state=&req_statename=&reqdb.zip=&reqdb.magic=&reqdb.wmo=">this site </a>
+# Warning and Practice Problem
+
+That’s it. That should be enough to go forth and write a web scraper of your own. But first a warning: 
+
+<b>Be a good web scraper.</b> Web scrapers can visit many more sites than a human. And they never click on adds. For these and other reasons, many sites ban or limit the use of web scrapers. Make sure to check what with the site (often in a <a href="http://www.robotstxt.org/">robot.txt</a> document) before collecting data. And even if they let you, think about limiting the rate you call up webpages. It will keep you in the good books.
+
+With everything presented here, you can scrape much more meaningful data than some fake email address. If you want to practice this yourself, <b>write a web scraper to scrape the mean daily temperature for Eugene OR from Jan. 1, 2016 to Jan. 31, 2016 from</b> 
+ <a href="https://www.wunderground.com/history/airport/KEUG/2016/1/1/DailyHistory.html?req_city=&req_state=&req_statename=&reqdb.zip=&reqdb.magic=&reqdb.wmo="><b>this site</b></a>
