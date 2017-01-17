@@ -499,3 +499,5 @@ That’s it. That should be enough to go forth and write a web scraper of your o
 
 With everything presented here, you can scrape much more meaningful data than some fake email address. If you want to practice this yourself, <b>write a web scraper to scrape the mean daily temperature for Eugene OR from Jan. 1, 2016 to Jan. 31, 2016 from</b> 
  <a href="https://www.wunderground.com/history/airport/KEUG/2016/1/1/DailyHistory.html?req_city=&req_state=&req_statename=&reqdb.zip=&reqdb.magic=&reqdb.wmo="><b>this site</b></a>
+ 
+ If you get stuck, take a look at a very similar web scraper in this directory.
